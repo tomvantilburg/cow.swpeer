@@ -1,0 +1,7 @@
+{
+        "herdname":"swappdemo",
+        "protocol": "wss",
+        "ip": "websocket.geodan.nl",
+        "port": 443,
+        "dir": "swappdemo"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "cow.swpeer",
+  "version": "0.0.1",
+  "description": "Cow instance connected to connector",
+  "main": "swpeer.js",
+  "dependencies": {
+    "websocket": "^1.0.22",
+    "cow": "https://github.com/Geodan/cow.git" 
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Geodan/cow.swpeer.git"
+  },
+  "author": "Tom van Tilburg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Geodan/cow.swpeer/issues"
+  },
+  "homepage": "https://github.com/Geodan/cow.swpeer#readme"
+}

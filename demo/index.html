@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+  <title>SWAPP-COW demo</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="utf-8">
+
+  <script src="../node_modules/underscore/underscore-min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="../node_modules/cow/dist/cow.js"></script>
+  <style>
+  .flex
+   {
+      /* basic styling */
+      width: 100%;
+      border: 1px solid #555;
+      font: 14px Arial;
+
+      /* flexbox setup */
+      display: -webkit-flex;
+      -webkit-flex-direction: row;
+
+      display: flex;
+      flex-direction: row;
+   }
+
+   .flex > div
+   {
+      -webkit-flex: 1 1 auto;
+      flex: 1 1 auto;
+   }
+   /* colors */
+   .flex > div:nth-child(1){ overlow : auto; }
+   .flex > div:nth-child(2){ background : #F1F2F1; }
+   .flex > div:nth-child(3){ background : #CE2B37; }
+   /*
+   .flex > div:hover
+   {
+        width: 200px;
+   }
+   */
+
+  .item {
+       margin-bottom: 5px;
+   }
+   .sub {
+       color: red;
+   }
+  </style>
+  </head>
+  <body>
+    <div class="flex">
+      <div id="projectlist">
+      </div>
+      <div id="itemlist">
+      </div>
+      <div id="itemlist">
+      </div>
+    </div>
+
+
+    <script>
+    var core = new Cow.core({
+      herdname: 'swappdemo',//'eagle',
+      maxage: 1000 * 60 * 60 * 24 * 30 //30 days
+    });
+
+    core.projectStore().on('datachange',function(){
+            console.log('Projectstore loaded');
+            if (core.projects()[0]){
+                core.project(core.projects()[0].id());
+                core.project().itemStore().on('datachange', function(){
+                        console.log('itemstore changed');
+                });
+            };
+            var projects = core.projects()
+                .filter(function(d){
+                    return  d.data('isIntakeIncident');
+                })
+                .sort(function(a,b){
+                    return new Date(b.data('lastModifiedDateTime')) - new Date(a.data('lastModifiedDateTime'));
+                });
+            var entities = d3.select('#projectlist').selectAll('div').data(projects, function(d){return d.id();});
+            entities.enter().append('div').classed('item',true)
+                .on('click',function(d){
+                    //Add tasks
+                    var items = d.items();
+                    var entities = d3.select('#itemlist').selectAll('div').data(items, function(d){return d.id();});
+                    entities.enter().append('div').classed('item',true)
+                        .html(function(d){return d.data('name')});
+                    entities.exit().remove();
+
+                    //Add subincidents
+                    var subsids = d.data('subIncidentIds');
+                    var subprojects = core.projects().filter(function(d){
+                        return subsids.indexOf(parseInt(d.id())) > -1; //parseInt is asking for trouble...
+                    });
+                    var entities = d3.select('#itemlist').selectAll('.sub').data(subprojects, function(d){return d.id();});
+                    entities.enter().append('div').classed('sub',true)
+                        .html(function(d){return d.data('name')});
+                })
+                .append('span').html(function(d){
+                    return d.data('name') + '<br><small>' + d.data('lastModifiedDateTime') + '</small>';
+                });
+    });
+
+    //add a default socketserver
+    core.socketservers({
+      _id: 'default',
+      data: {protocol:'wss',ip:'websocket.geodan.nl', port:443, dir: 'swappdemo'}
+    });
+    core.socketserver('default');
+    core.connect();
+
+    </script>
+  </body>
+</html>
